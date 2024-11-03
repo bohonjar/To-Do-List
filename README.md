@@ -9,7 +9,7 @@ A simple and intuitive To-Do List application built using Visual Studio Code. Th
 - Mark as Complete: Track completed tasks for better organization.
 - Responsive Design: Works seamlessly across various devices.
 
-#Technologies Used
+# Technologies Used
 
 - HTML
 - CSS
