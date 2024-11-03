@@ -3,8 +3,8 @@ A simple and intuitive To-Do List application built using Visual Studio Code. Th
 
 # Features
 
-Add Tasks: Easily create new tasks with a title and description.
-Edit Tasks: Modify existing tasks to keep information up-to-date.
+- Add Tasks: Easily create new tasks with a title and description.
+- Edit Tasks: Modify existing tasks to keep information up-to-date.
 Delete Tasks: Remove tasks that are no longer needed.
 Mark as Complete: Track completed tasks for better organization.
 Responsive Design: Works seamlessly across various devices.
