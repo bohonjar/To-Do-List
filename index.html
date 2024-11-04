@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To-Do List Application</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        #taskInput {
+            width: 70%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        #addTaskButton {
+            padding: 10px;
+            margin-left: 5px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        #addTaskButton:hover {
+            background-color: #218838;
+        }
+        .task {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            background: #fff;
+            margin: 5px 0;
+            border-radius: 4px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .task.completed {
+            text-decoration: line-through;
+            color: #888;
+        }
+        .deleteButton {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .deleteButton:hover {
+            background-color: #c82333;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>To-Do List</h1>
+    <input type="text" id="taskInput" placeholder="Add a new task...">
+    <button id="addTaskButton">Add Task</button>
+    <div id="taskList"></div>
+
+    <script>
+        const taskInput = document.getElementById('taskInput');
+        const addTaskButton = document.getElementById('addTaskButton');
+        const taskList = document.getElementById('taskList');
+
+        let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+
+        function renderTasks() {
+            taskList.innerHTML = '';
+            tasks.forEach((task, index) => {
+                const taskDiv = document.createElement('div');
+                taskDiv.className = 'task' + (task.completed ? ' completed' : '');
+                
+                const taskText = document.createElement('span');
+                taskText.textContent = task.text;
+                taskDiv.appendChild(taskText);
+                
+                const completeButton = document.createElement('button');
+                completeButton.textContent = task.completed ? 'Undo' : 'Complete';
+                completeButton.onclick = () => {
+                    task.completed = !task.completed;
+                    updateLocalStorage();
+                    renderTasks();
+                };
+                taskDiv.appendChild(completeButton);
+                
+                const deleteButton = document.createElement('button');
+                deleteButton.textContent = 'Delete';
+                deleteButton.className = 'deleteButton';
+                deleteButton.onclick = () => {
+                    tasks.splice(index, 1);
+                    updateLocalStorage();
+                    renderTasks();
+                };
+                taskDiv.appendChild(deleteButton);
+                
+                taskList.appendChild(taskDiv);
+            });
+        }
+
+        function updateLocalStorage() {
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+        }
+
+        addTaskButton.onclick = () => {
+            const taskText = taskInput.value.trim();
+            if (taskText) {
+                tasks.push({ text: taskText, completed: false });
+                taskInput.value = '';
+                updateLocalStorage();
+                renderTasks();
+            }
+        };
+
+        renderTasks();
+    </script>
+
+</body>
+</html>
