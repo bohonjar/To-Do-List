@@ -1,113 +1,169 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>To-Do List Application</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            margin: 0;
-            padding: 20px;
-        }
-        h1 {
-            text-align: center;
-            color: #333;
-        }
-        #taskInput {
-            width: 70%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-        }
-        #addTaskButton {
-            padding: 10px;
-            margin-left: 5px;
-            background-color: #28a745;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        #addTaskButton:hover {
-            background-color: #218838;
-        }
-        .task {
-            display: flex;
-            justify-content: space-between;
-            padding: 10px;
-            background: #fff;
-            margin: 5px 0;
-            border-radius: 4px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        }
-        .task.completed {
-            text-decoration: line-through;
-            color: #888;
-        }
-        .deleteButton {
-            background-color: #dc3545;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        .deleteButton:hover {
-            background-color: #c82333;
-        }
-    </style>
+    <link rel="stylesheet" type="text/css" href="style.css">
 </head>
+
 <body>
 
-    <h1>To-Do List</h1>
-    <input type="text" id="taskInput" placeholder="Add a new task...">
-    <button id="addTaskButton">Add Task</button>
-    <div id="taskList"></div>
+    <div class="centered-add-task">
+        <div class="section add-task-section">
+            <input type="text" id="taskInput" placeholder="Add a new task...">
+            <button id="addTaskButton">Add Task</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="section">
+            <h2>Active Tasks</h2>
+            <div id="activeTasks"></div>
+        </div>
+
+        <div class="section">
+            <h2>Completed Tasks</h2>
+            <div id="completedTasks"></div>
+        </div>
+
+        <div class="section">
+            <h2>Recently Deleted Tasks</h2>
+            <div id="deletedTasks"></div>
+            <button id="clearDeletedTasksButton" class="button deleteButton">Clear All</button>
+        </div>
+
+        <div class="section">
+            <h2>Recommended Tasks</h2>
+            <div id="recommendedTasks"></div>
+        </div>
+    </div>
 
     <script>
         const taskInput = document.getElementById('taskInput');
         const addTaskButton = document.getElementById('addTaskButton');
-        const taskList = document.getElementById('taskList');
+        const activeTasksDiv = document.getElementById('activeTasks');
+        const completedTasksDiv = document.getElementById('completedTasks');
+        const deletedTasksDiv = document.getElementById('deletedTasks');
+        const recommendedTasksDiv = document.getElementById('recommendedTasks');
 
         let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+        let deletedTasks = JSON.parse(localStorage.getItem('deletedTasks')) || [];
+
+        const recommendedTasks = [
+            "Read a book",
+            "Organize your workspace",
+            "Write a daily journal",
+            "Go for a 30-minute walk",
+            "Plan meals for the week",
+            "Exercise for 20 minutes",
+            "Water your plants",
+            "Declutter a room",
+            "Learn a new recipe",
+            "Practice mindfulness",
+            "Do a home workout",
+            "Call a friend or family member",
+            "Clean out your email inbox",
+            "Review personal finances",
+            "Set goals for the week",
+            "Listen to a podcast",
+            "Practice a hobby",
+            "Organize your files",
+            "Write a gratitude list",
+            "Try a new skill"
+        ];
 
         function renderTasks() {
-            taskList.innerHTML = '';
+            activeTasksDiv.innerHTML = '';
+            completedTasksDiv.innerHTML = '';
+            deletedTasksDiv.innerHTML = '';
+            recommendedTasksDiv.innerHTML = '';
+
             tasks.forEach((task, index) => {
                 const taskDiv = document.createElement('div');
                 taskDiv.className = 'task' + (task.completed ? ' completed' : '');
-                
+
                 const taskText = document.createElement('span');
                 taskText.textContent = task.text;
                 taskDiv.appendChild(taskText);
-                
-                const completeButton = document.createElement('button');
-                completeButton.textContent = task.completed ? 'Undo' : 'Complete';
-                completeButton.onclick = () => {
-                    task.completed = !task.completed;
-                    updateLocalStorage();
-                    renderTasks();
-                };
-                taskDiv.appendChild(completeButton);
-                
+
+                if (!task.completed) {
+                    const completeButton = document.createElement('button');
+                    completeButton.className = 'button completeButton';
+                    completeButton.textContent = 'Complete';
+                    completeButton.onclick = () => {
+                        task.completed = true;
+                        updateLocalStorage();
+                        renderTasks();
+                    };
+                    taskDiv.appendChild(completeButton);
+                    activeTasksDiv.appendChild(taskDiv);
+                } else {
+                    const undoButton = document.createElement('button');
+                    undoButton.className = 'button undoButton';
+                    undoButton.textContent = 'Undo';
+                    undoButton.onclick = () => {
+                        task.completed = false;
+                        updateLocalStorage();
+                        renderTasks();
+                    };
+                    taskDiv.appendChild(undoButton);
+                    completedTasksDiv.appendChild(taskDiv);
+                }
+
                 const deleteButton = document.createElement('button');
+                deleteButton.className = 'button deleteButton';
                 deleteButton.textContent = 'Delete';
-                deleteButton.className = 'deleteButton';
                 deleteButton.onclick = () => {
-                    tasks.splice(index, 1);
+                    deletedTasks.push(tasks.splice(index, 1)[0]);
                     updateLocalStorage();
                     renderTasks();
                 };
                 taskDiv.appendChild(deleteButton);
-                
-                taskList.appendChild(taskDiv);
+            });
+
+            deletedTasks.forEach((task) => {
+                const deletedTaskDiv = document.createElement('div');
+                deletedTaskDiv.className = 'task';
+                deletedTaskDiv.textContent = task.text;
+                deletedTasksDiv.appendChild(deletedTaskDiv);
+            });
+
+            recommendedTasks.forEach((task) => {
+                const recommendedTaskDiv = document.createElement('div');
+                recommendedTaskDiv.className = 'task';
+
+                const taskText = document.createElement('span');
+                taskText.textContent = task;
+                recommendedTaskDiv.appendChild(taskText);
+
+                const addButton = document.createElement('button');
+                addButton.className = 'button recommendationButton';
+                addButton.textContent = 'Add';
+                addButton.onclick = () => {
+                    tasks.push({ text: task, completed: false });
+                    updateLocalStorage();
+                    renderTasks();
+                };
+                recommendedTaskDiv.appendChild(addButton);
+                recommendedTasksDiv.appendChild(recommendedTaskDiv);
             });
         }
 
         function updateLocalStorage() {
             localStorage.setItem('tasks', JSON.stringify(tasks));
+            localStorage.setItem('deletedTasks', JSON.stringify(deletedTasks));
         }
+
+        const clearDeletedTasksButton = document.getElementById('clearDeletedTasksButton');
+
+        clearDeletedTasksButton.onclick = () => {
+            deletedTasks = [];
+            updateLocalStorage();
+            renderTasks();
+        };
+
 
         addTaskButton.onclick = () => {
             const taskText = taskInput.value.trim();
@@ -123,4 +179,5 @@
     </script>
 
 </body>
+
 </html>
